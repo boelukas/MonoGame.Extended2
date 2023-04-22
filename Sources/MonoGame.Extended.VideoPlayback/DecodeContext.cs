@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
 using MonoGame.Extended.Framework.Media;
 using MonoGame.Extended.VideoPlayback.AudioDecoding;
@@ -534,7 +535,11 @@ internal sealed unsafe class DecodeContext : DisposableBase
                 if (!_isEndedTriggered)
                 {
                     // Must use BeginInvoke. See the explanations of Ended.
-                    Ended?.BeginInvoke(this, EventArgs.Empty, null, null);
+                    // Ended?.BeginInvoke(this, EventArgs.Empty, null, null);
+                    Task.Run(() => // .NET 5 compatible as BeginInvoke is not supported
+                    {
+                        Ended?.Invoke(this, EventArgs.Empty);
+                    });
                     // var thread = new Thread(thisObject => {
                     //     var context = (DecodeContext)thisObject;
                     //     context.Ended?.Invoke(context, EventArgs.Empty);
